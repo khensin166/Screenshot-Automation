@@ -1,0 +1,28 @@
+name: Build & Export Docker Image
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Kode
+        uses: actions/checkout@v3
+
+      - name: Build Docker Image (Alpine)
+        run: |
+          docker build -t custom-grafana-renderer:v3 .
+          
+      - name: Export & Compress (tar.gz)
+        run: |
+          docker save custom-grafana-renderer:v3 | gzip > custom-grafana-renderer-v3.tar.gz
+          
+      - name: Upload Hasil Build ke GitHub
+        uses: actions/upload-artifact@v3
+        with:
+          name: Docker-Image-v3
+          path: custom-grafana-renderer-v3.tar.gz
+          retention-days: 5
